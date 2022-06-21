@@ -1,0 +1,66 @@
+#!/usr/bin/with-contenv bash
+
+if [ ! -f /var/www/html/inc/downstream.php ]; then
+    cat > /var/www/html/inc/downstream.php <<EOT
+<?php
+define('GLPI_CONFIG_DIR', '/config/glpi-config/');
+
+if (file_exists(GLPI_CONFIG_DIR . '/local_define.php')) {
+   require_once GLPI_CONFIG_DIR . '/local_define.php';
+}
+EOT
+fi
+
+mkdir -p \
+    /config/glpi-config \
+    /config/glpi-files \
+    /config/glpi-log
+
+PREV_DIR=$(pwd)
+#
+cd /defaults/config || exit
+shopt -s globstar nullglob
+for i in *; do
+  [[ ! -e "/config/glpi-config/${i}" ]] && cp -r "${i}" "/config/glpi-config/${i}"
+done
+
+cd /defaults/files || exit
+shopt -s globstar nullglob
+for i in *; do
+  [[ ! -e "/config/glpi-files/${i}" ]] && cp -r "${i}" "/config/glpi-files/${i}"
+done
+#
+cd "${PREV_DIR}" || exit
+
+if [ ! -f /config/glpi-config/local_define.php ] ; then
+    cp /defaults/glpi/local_define.php /config/glpi-config/local_define.php
+fi
+
+if [ ! -f /config/glpi-config/local_define.php ] ; then
+    cp /defaults/glpi/local_define.php /config/glpi-config/local_define.php
+fi
+
+if [ ! -f /config/glpi-config/opcache-blacklist.txt ] ; then
+    cp /defaults/glpi/opcache-blacklist.txt /config/glpi-config/opcache-blacklist.txt
+fi
+
+[[ ! -L /var/www/html/config ]] && \
+  ln -sf /config/glpi-config /var/www/html/config
+[[ ! -L /var/www/html/files ]] && \
+  ln -sf /config/glpi-files /var/www/html/files
+
+chown -R abc:abc \
+    /config/
+
+if [ ! -z ${TZ+x} ]; then
+  printf ${TZ} > /run/s6/container_environment/APP_TIMEZONE
+fi
+
+if [ ! -f /config/nginx/site-confs/default ] ; then
+    cp /defaults/default /config/nginx/site-confs
+fi
+
+if [ ! -z ${APP_URL+x} ]; then
+  REPLACE_URL=$(echo ${APP_URL} | awk -F/ '{print $3}')
+fi
+sed -i "s/APP_URL_PLACEHOLDER/${REPLACE_URL}/g" /config/nginx/site-confs/default
