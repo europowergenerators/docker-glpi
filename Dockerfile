@@ -29,6 +29,7 @@ RUN \
     php7-cli \
     php7-openssl \
     php7-opcache \
+    php7-phar \
     php7-zip \
     php7-exif \
     php7-bz2 \
