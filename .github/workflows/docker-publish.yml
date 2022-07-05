@@ -39,6 +39,13 @@ jobs:
       # id-token: write
 
     steps:
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+      - name: Get external version
+        id: ext_version
+        run: echo "::set-output name=version::$(cat EXT_VERSION)"
+        
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -83,6 +90,10 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BUILD_DATE=${{ steps.date.outputs.date }}
+            VERSION=${{ steps.meta.outputs.version }}
+            GLPI_RELEASE=${{ steps.ext_version.outputs.version }}
 
       # Sign the resulting Docker image digest except on PRs.
       # This will only write to the public Rekor transparency log when the Docker
