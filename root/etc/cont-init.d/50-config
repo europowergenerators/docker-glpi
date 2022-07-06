@@ -54,7 +54,7 @@ chown -R abc:abc \
     /config/
 
 if [ ! -z ${TZ+x} ]; then
-  printf ${TZ} > /run/s6/container_environment/APP_TIMEZONE
+  printf "${TZ}" > /run/s6/container_environment/APP_TIMEZONE
 fi
 
 if [ ! -f /config/nginx/site-confs/default ] ; then
@@ -62,7 +62,7 @@ if [ ! -f /config/nginx/site-confs/default ] ; then
 fi
 
 if [ ! -z ${APP_URL+x} ]; then
-  REPLACE_URL=$(echo ${APP_URL} | awk -F/ '{print $3}')
+  REPLACE_URL=$(echo "${APP_URL}" | awk -F/ '{print $3}')
 fi
 sed -i "s/APP_URL_PLACEHOLDER/${REPLACE_URL}/g" /config/nginx/site-confs/default
 
