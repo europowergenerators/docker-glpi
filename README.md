@@ -6,9 +6,21 @@ Modified from the following sources to package the gratis release of the [GLPI s
 * https://github.com/linuxserver/docker-snipe-it
 * https://github.com/linuxserver/docker-phpmyadmin
 
+## FEATURES
+
+* GRATIS release of [GLPI software](https://glpi-project.org/)
+* Easy access to runtime data through the "/config" directory within the container
+  * Map a host system directory onto "/config"
+* You can manually provide plugins for use in GLPI
+  * Copy your plugin folders into "/config/glpi-marketplace" and restart the container
+
 ## USAGE
 
-Create a docker-compose file similar to the one below. The docker image _is not_ published to any repository!
+Check the sidebar for a packaged docker image to deploy! Or use [this link](https://github.com/orgs/europowergenerators/packages?repo_name=docker-glpi)
+
+### Local development
+
+See [docker-compose-local.yml](docker-compose-local.yml)
 
 ```yaml
 version: "3.2"
@@ -37,6 +49,7 @@ services:
       args:
         BUILD_DATE: 2022-06-21
         VERSION: 0.1
+        # ERROR; Make sure to use THE LATEST AND MOST SECURE GLPI version!
         GLPI_RELEASE: 10.0.1
     container_name: glpi-custom
     environment:

@@ -24,6 +24,7 @@ services:
       args:
         BUILD_DATE: 2022-06-16
         VERSION: 0.1
+        # ERROR; Make sure to use THE LATEST AND MOST SECURE GLPI version!
         GLPI_RELEASE: 10.0.1
     container_name: glpi-custom
     environment:
