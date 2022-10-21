@@ -20,7 +20,7 @@ Check the sidebar for a packaged docker image to deploy! Or use [this link](http
 
 ## Plug-ins
 
-We use the following plugins on our installation;
+We use the following plugins on our installation. These are not distributed with this image and require additional work during deployment.
 
 * (Additional) Fields
   * Use the marketplace to reinstall
@@ -28,3 +28,6 @@ We use the following plugins on our installation;
 * Single Sign-On
   * Our own fork, push all files (not dot-files) to [volume]/glpi/marketplace/singlesignon
   * SOURCE; https://github.com/europowergenerators/glpi-singlesignon
+* Barcode
+  * Use the marketplace to reinstall
+  * SOURCE; https://github.com/pluginsGLPI/barcode
