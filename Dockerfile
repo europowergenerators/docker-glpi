@@ -75,5 +75,7 @@ RUN \
     /tmp/*
 
 COPY root/ /
+RUN echo "**** write out glpi metadata ****"; \
+  echo "${GLPI_RELEASE}" > /GLPI.VERSION
 
 EXPOSE 80 443

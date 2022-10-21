@@ -50,3 +50,17 @@ if [ ! -z ${APP_URL+x} ]; then
   REPLACE_HOST=$(echo "${APP_URL}" | cut -d'/' -f3 | cut -d':' -f1)
   sed -i "s/server_name _/server_name ${REPLACE_HOST}/g" /config/nginx/site-confs/default
 fi
+
+# Perform upgrade if newer version is detected
+GLPI_LOCAL_VERSION=$(head -n 1 /GLPI.VERSION)
+GLPI_CONFIG_VERSION=$(head -n 1 /config/GLPI.VERSION 2> /dev/null)
+
+if [ ! -z ${GLPI_CONFIG_VERSION} ] && [ -f /config/glpi/config/glpicrypt.key ] && [ "${GLPI_LOCAL_VERSION}" != "${GLPI_CONFIG_VERSION}" ]; then
+    /usr/bin/php /var/www/glpi/bin/console db:update && \
+    rm -rf /var/www/glpi/install && \
+    cp /GLPI.VERSION /config/GLPI.VERSION
+fi
+
+if [ -z ${GLPI_CONFIG_VERSION} ] || [ ! -f /config/glpi/config/glpicrypt.key ]; then
+    cp /GLPI.VERSION /config/GLPI.VERSION
+fi
