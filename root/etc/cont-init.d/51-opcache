@@ -1,0 +1,9 @@
+#!/usr/bin/with-contenv bash
+
+if [ ! -f /config/php/opcache-blacklist.txt ] ; then
+    echo "; Add file paths, file path prefixes, wildcard path queries to exclude them from the opcode cache" > /config/php/opcache-blacklist.txt
+fi
+
+# Add opcache exclusion
+grep "^/var/www/glpi/vendor/tecnickcom/tcpdf/fonts/$" /config/php/opcache-blacklist.txt || \
+echo "/var/www/glpi/vendor/tecnickcom/tcpdf/fonts/" >> /config/php/opcache-blacklist.txt
