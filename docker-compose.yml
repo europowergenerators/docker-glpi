@@ -1,0 +1,50 @@
+version: "3.2"
+
+services:
+  # Deploy with
+  # PS$ rm .volumes -recurse -force; (docker-compose -f docker-compose.yml down) -and (docker-compose -f docker-compose.yml build) -and (docker-compose -f docker-compose.yml up -d)
+  # SH$ rm -rf .volumes; docker-compose -f docker-compose.yml down && docker-compose -f docker-compose.yml build && docker-compose -f docker-compose.yml up -d
+  #
+  # Prune caches/local data with
+  # SH$ docker builder prune -a
+  # SH$ docker image prune -a
+  glpi:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        BUILD_DATE: 2022-06-16
+        VERSION: 0.X
+        # ERROR; Make sure to use THE LATEST AND MOST SECURE GLPI version!
+        GLPI_RELEASE: 10.0.3
+    container_name: glpi-custom
+    depends_on:
+      - mariadb
+    environment:
+      - PUID=1000
+      - PGID=1000
+      # NOTE; APP_URL required for deployments without reverse proxy!
+      # APP_URL is optional when reverse proxying, for optimal robustness set it to the external (reversed) URL
+      - APP_URL=http://localhost:8085
+      - TZ=Europe/Brussels
+    volumes:
+      - ./.volumes/glpi:/config
+    ports:
+      - 8085:80
+    restart: unless-stopped
+
+  mariadb:
+    image: lscr.io/linuxserver/mariadb:latest
+    container_name: mariadb-glpi
+    hostname: mariadb-glpi
+    volumes:
+      - ./.volumes/mysql:/config
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - MYSQL_ROOT_PASSWORD=unsafepassword$$
+      - TZ=Europe/Brussels
+      - MYSQL_DATABASE=glpi
+      - MYSQL_USER=glpi_user
+      - MYSQL_PASSWORD=glpi
+    restart: unless-stopped

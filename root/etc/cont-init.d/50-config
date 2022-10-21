@@ -1,0 +1,52 @@
+#!/usr/bin/with-contenv bash
+
+mkdir -p \
+    /config/glpi/config \
+    /config/glpi/files \
+    /config/glpi/marketplace \
+    /config/log/glpi \
+
+if [ ! -f /var/www/glpi/inc/downstream.php ] ; then
+    cp /defaults/glpi/inc/downstream.php /var/www/glpi/inc/downstream.php
+fi
+
+PREV_DIR=$(pwd)
+
+cd /defaults/glpi/config || exit
+shopt -s globstar nullglob
+for i in *; do
+  [[ ! -e "/config/glpi/config/${i}" ]] && cp -r "${i}" "/config/glpi/config/${i}"
+done
+
+cd /defaults/glpi/files || exit
+shopt -s globstar nullglob
+for i in *; do
+  [[ ! -e "/config/glpi/files/${i}" ]] && cp -r "${i}" "/config/glpi/files/${i}"
+done
+
+if [ ! -f /config/glpi/config/local_define.php ] ; then
+    cp /defaults/glpi/local_define.php /config/glpi/config/local_define.php
+fi
+
+[[ ! -L /var/www/html/config ]] && \
+  ln -sf /config/glpi/config /var/www/glpi/config
+[[ ! -L /var/www/html/files ]] && \
+  ln -sf /config/glpi/files /var/www/glpi/files
+
+chown -R abc:abc \
+    /config/
+
+cd /config/glpi/marketplace || exit
+shopt -s globstar nullglob
+for i in *; do
+  [[ ! -e "/var/www/glpi/marketplace/${i}" ]] && cp -r "${i}" "/var/www/glpi/marketplace/${i}"
+done
+
+cd "${PREV_DIR}" || exit
+
+if [ ! -z ${APP_URL+x} ]; then
+  # NOTE; Strip protocol and port from the provided URL
+  # eg; https://localhost:8080/path -> localhost
+  REPLACE_HOST=$(echo "${APP_URL}" | cut -d'/' -f3 | cut -d':' -f1)
+  sed -i "s/server_name _/server_name ${REPLACE_HOST}/g" /config/nginx/site-confs/default
+fi
